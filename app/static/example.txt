@@ -1,2 +1,0 @@
-这是一个静态文件示例
-你可以通过/static/example.txt访问它
