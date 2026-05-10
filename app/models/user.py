@@ -1,32 +1,30 @@
 """
-what:映射数据库表的python表
-why:ORM让你用面向对象的方式操作数据库,不写SQL
-how:继承Base,用Column定义字段.User和Item之间通过外键和relationship建立一对多关系
+ORM 模型：User 和 Item
+- User: 包含认证所需的用户名、哈希密码、角色等
+- Item: 与 User 一对多关联，演示外键和 relationship
 """
-"""
-ORM模型:User和Item
--User:包含认证所需的用户名,哈希密码,角色
--Item:与User一对多关联,演示外键和relationship
-"""
-from sqlalchemy import Column,Integer,String,Boolean,ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
+
+
 class User(Base):
-    __tablename__="users"
-    id=Column(Integer,primary_key=True,index=True)
-    username=Column(String(50),unique=True,index=True,nullable=False)
-    email=Column(String(100),unique=True,index=True,nullable=False)
-    hashed_password=Column(String(128),nullable=False) # 存储bcrypt哈希后的密码
-    is_active=Column(Boolean,default=True) # 是否激活
-    role=Column(String(10),default='users')  # 角色:user,admin
-    items = relationship("Item",back_populates = "owner")
-# item会由Item中的backref自动添加,这里不需要手动定义
+    __tablename__ = "users"    # ✅ 复数
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(128), nullable=False)
+    is_active = Column(Boolean, default=True)
+    role = Column(String(10), default="user")
+
+
 class Item(Base):
-    __tablename__="items"
-    id=Column(Integer,primary_key=True,index=True)
-    title=Column(String(200),index=True,nullable=False)
-    description=Column(String(200),nullable=True)
-    owner_id=Column(Integer,ForeignKey('user.id'))
-    # relationship:通过owner可以访问所属User,同时User会多一个items属性(backer)
-    owner = relationship("User", back_populates="items")
-    
+    __tablename__ = "items"    # ✅ 复数
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), index=True, nullable=False)
+    description = Column(String(500), nullable=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))    # ✅ 改成 users.id
+
+    owner = relationship("User", backref="items")         # ✅ 改成 items
